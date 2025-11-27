@@ -78,6 +78,25 @@
             border-radius: 12px;
         }
 
+        /* 縣市選單樣式 */
+        .city-selector {
+            background: white;
+            color: var(--ac-brown);
+            padding: 8px 15px;
+            border-radius: 20px;
+            font-weight: bold;
+            font-size: 1rem;
+            border: 2px solid var(--ac-yellow);
+            box-shadow: 2px 2px 0 rgba(0, 0, 0, 0.1);
+            cursor: pointer;
+            font-family: 'Zen Maru Gothic', sans-serif;
+            outline: none;
+        }
+
+        .city-selector:focus {
+            border-color: var(--ac-blue);
+        }
+
         .container {
             padding: 20px;
             max-width: 600px;
@@ -264,7 +283,31 @@
         <p style="color: white; font-weight: bold; margin-top: 20px;">正在觀測雲的流動...</p>
     </div>
     <div class="status-bar">
-        <div class="location-pill">📍 新北市</div>
+        <div class="location-pill" id="locationDisplay">📍 新北市</div>
+        <select id="citySelector" class="city-selector">
+            <option value="newtaipei">新北市</option>
+            <option value="keelung">基隆市</option>
+            <option value="taipei">臺北市</option>
+            <option value="yilan">宜蘭縣</option>
+            <option value="taoyuan">桃園市</option>
+            <option value="hsinchucity">新竹市</option>
+            <option value="hsinchucounty">新竹縣</option>
+            <option value="miaoli">苗栗縣</option>
+            <option value="taichung">臺中市</option>
+            <option value="changhua">彰化縣</option>
+            <option value="nantou">南投縣</option>
+            <option value="yunlin">雲林縣</option>
+            <option value="chiayicity">嘉義市</option>
+            <option value="chiayicounty">嘉義縣</option>
+            <option value="tainan">臺南市</option>
+            <option value="kaohsiung">高雄市</option>
+            <option value="pingtung">屏東縣</option>
+            <option value="hualien">花蓮縣</option>
+            <option value="taitung">臺東縣</option>
+            <option value="penghu">澎湖縣</option>
+            <option value="kinmen">金門縣</option>
+            <option value="lienchiang">連江縣</option>
+        </select>
         <div id="updateTime" class="update-pill">更新中...</div>
     </div>
 
@@ -280,7 +323,38 @@
     </div>
 
     <script>
-        const API_URL = "https://weatherdunk.zeabur.app/api/weather/newtaipei";
+        // 縣市名稱對照表
+        const cityNames = {
+            keelung: "基隆市",
+            taipei: "臺北市",
+            newtaipei: "新北市",
+            yilan: "宜蘭縣",
+            taoyuan: "桃園市",
+            hsinchucity: "新竹市",
+            hsinchucounty: "新竹縣",
+            miaoli: "苗栗縣",
+            taichung: "臺中市",
+            changhua: "彰化縣",
+            nantou: "南投縣",
+            yunlin: "雲林縣",
+            chiayicity: "嘉義市",
+            chiayicounty: "嘉義縣",
+            tainan: "臺南市",
+            kaohsiung: "高雄市",
+            pingtung: "屏東縣",
+            hualien: "花蓮縣",
+            taitung: "臺東縣",
+            penghu: "澎湖縣",
+            kinmen: "金門縣",
+            lienchiang: "連江縣"
+        };
+
+        let currentCity = "newtaipei";
+        const API_BASE_URL = "https://weatherdunk.zeabur.app/api/weather/";
+
+        function getApiUrl() {
+            return API_BASE_URL + currentCity;
+        }
 
         function getWeatherIcon(weather) {
             if (!weather) return "🌤️";
@@ -394,11 +468,15 @@
 
         async function fetchWeather() {
             try {
+                // 顯示 Loading 畫面
+                document.getElementById('loading').style.display = 'flex';
+                document.getElementById('mainContent').style.display = 'none';
+
                 // 1. 定義「最低等待時間」：1500 毫秒 (1.5秒)
                 const delayPromise = new Promise(resolve => setTimeout(resolve, 1500));
 
                 // 2. 定義「抓取資料」的工作
-                const fetchPromise = fetch(API_URL).then(res => res.json());
+                const fetchPromise = fetch(getApiUrl()).then(res => res.json());
 
                 // 3. Promise.all 會等待「兩個都完成」才會往下走
                 // result 陣列裡，第一個是 delay 的結果(沒用到)，第二個是 api 的 json 資料
@@ -407,7 +485,10 @@
                 if (json.success) {
                     renderWeather(json.data);
 
-                    // 資料處理好後，隱藏 Loading，顯示主畫面
+                    // 更新位置顯示
+                    document.getElementById('locationDisplay').textContent = `📍 ${cityNames[currentCity]}`;
+
+                    // 資料處理好後,隱藏 Loading，顯示主畫面
                     document.getElementById('loading').style.display = 'none';
                     document.getElementById('mainContent').style.display = 'block';
                 } else {
@@ -416,8 +497,16 @@
             } catch (e) {
                 console.error(e);
                 alert("天氣資料讀取失敗，狸克把網路線咬斷了！");
+                // 發生錯誤時也要隱藏 loading
+                document.getElementById('loading').style.display = 'none';
             }
         }
+
+        // 監聽縣市選單變化
+        document.getElementById('citySelector').addEventListener('change', function (e) {
+            currentCity = e.target.value;
+            fetchWeather();
+        });
 
         document.addEventListener("DOMContentLoaded", fetchWeather);
     </script>
