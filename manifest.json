@@ -1,0 +1,23 @@
+{
+    "name": "各縣市天氣預報",
+    "short_name": "天氣預報",
+    "description": "台灣各縣市天氣預報查詢",
+    "start_url": "./index.html",
+    "display": "standalone",
+    "background_color": "#6B9080",
+    "theme_color": "#6B9080",
+    "icons": [
+        {
+            "src": "./icon-v2.png",
+            "sizes": "192x192",
+            "type": "image/png",
+            "purpose": "any maskable"
+        },
+        {
+            "src": "./icon-v2.png",
+            "sizes": "512x512",
+            "type": "image/png",
+            "purpose": "any maskable"
+        }
+    ]
+}
